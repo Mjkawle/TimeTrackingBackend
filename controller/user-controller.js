@@ -8,6 +8,8 @@ module.exports.addUser = function (req, res) {
     let firstName = req.body.firstName
     let email = req.body.email
     let password = req.body.password
+    // let gender   = req.body.gender
+    // let contactNum = req.body.contactNum
     //encrypt 
 
     let encPassword = bcrypt.hashSync(password,10)
@@ -19,7 +21,51 @@ module.exports.addUser = function (req, res) {
         firstName: firstName,
         email: email,
         password: encPassword,
-        role: role
+        role: role,
+        gender:gender,
+        contactNum:contactNum
+    })
+
+
+
+    user.save(function (err, data) {
+        if (err) {
+            res.json({ msg: "SMW", data: err, status: -1 })//-1  [ 302 404 500 ]
+        } else {
+            res.json({ msg: "User Added", data: data, status: 200 })//http status code 
+        }
+    })
+
+
+}
+
+
+
+
+
+
+//add [ POST ]
+module.exports.addCustomer = function (req, res) {
+
+    let firstName = req.body.firstName
+    let email = req.body.email
+    let password = req.body.password
+    let gender   = req.body.gender
+    let contactNum = req.body.contactNum
+    //encrypt 
+
+    let encPassword = bcrypt.hashSync(password,10)
+
+    let role = "620dda273e406e1014a29e24"
+
+
+    let user = new UserModel({
+        firstName: firstName,
+        email: email,
+        password: encPassword,
+        role: role,
+        gender:gender,
+        contactNum:contactNum
     })
 
 
@@ -86,7 +132,7 @@ module.exports.login = function(req,res){
 
     let isCorrect = false; 
 
-    UserModel.findOne({email:param_email},function(err,data){
+    UserModel.findOne({email:param_email}).populate("role").exec(function(err,data){
         if(data){
             let ans =  bcrypt.compareSync(param_password,data.password)
             if(ans == true){
